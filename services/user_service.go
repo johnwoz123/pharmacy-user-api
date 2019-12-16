@@ -7,7 +7,20 @@ import (
 	"github.com/johnwoz123/pharmacy-user-api/utils/password/crypt"
 )
 
-func CreateUser(user users.User) (*users.User, *errors.RestErrors) {
+var UserService userServiceInterface = &userService{}
+
+type userServiceInterface interface {
+	CreateUser(users.User) (*users.User, *errors.RestErrors)
+	GetUser(int64) (*users.User, *errors.RestErrors)
+	UpdateUser(users.User) (*users.User, *errors.RestErrors)
+	DeleteUser(int64) *errors.RestErrors
+	FindByStatus(string) (users.Users, *errors.RestErrors)
+}
+
+type userService struct {
+}
+
+func (s *userService) CreateUser(user users.User) (*users.User, *errors.RestErrors) {
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
@@ -24,7 +37,7 @@ func CreateUser(user users.User) (*users.User, *errors.RestErrors) {
 	return &user, nil
 }
 
-func GetUser(userId int64) (*users.User, *errors.RestErrors) {
+func (s *userService) GetUser(userId int64) (*users.User, *errors.RestErrors) {
 	result := &users.User{Id: userId}
 	if err := result.Get(); err != nil {
 		return nil, err
@@ -33,7 +46,7 @@ func GetUser(userId int64) (*users.User, *errors.RestErrors) {
 
 }
 
-func UpdateUser(user users.User) (*users.User, *errors.RestErrors) {
+func (s *userService) UpdateUser(user users.User) (*users.User, *errors.RestErrors) {
 	currentUser, err := GetUser(user.Id)
 	if err != nil {
 		return nil, err
@@ -52,12 +65,12 @@ func UpdateUser(user users.User) (*users.User, *errors.RestErrors) {
 	return currentUser, nil
 }
 
-func DeleteUser(userId int64) *errors.RestErrors {
+func (s *userService) DeleteUser(userId int64) *errors.RestErrors {
 	user := &users.User{Id: userId}
 	return user.Delete()
 }
 
-func FindByStatus(status string) (users.Users, *errors.RestErrors) {
+func (s *userService) FindByStatus(status string) (users.Users, *errors.RestErrors) {
 	dataAccessObject := &users.User{}
 	return dataAccessObject.FindByStatus(status)
 }
