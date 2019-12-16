@@ -1,4 +1,4 @@
-package controllers
+package health_check_controller
 
 import (
 	"github.com/gin-gonic/gin"
