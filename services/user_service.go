@@ -5,6 +5,7 @@ import (
 	"github.com/johnwoz123/pharmacy-user-api/utils/date"
 	"github.com/johnwoz123/pharmacy-user-api/utils/errors"
 	"github.com/johnwoz123/pharmacy-user-api/utils/password/crypt"
+	"strconv"
 )
 
 var UserService userServiceInterface = &userService{}
@@ -18,6 +19,14 @@ type userServiceInterface interface {
 }
 
 type userService struct {
+}
+
+func getUserById(idParam string) (int64, *errors.RestErrors) {
+	userId, Uerr := strconv.ParseInt(idParam, 10, 64)
+	if Uerr != nil {
+		return 0, errors.BadRequestError("user id must bea number")
+	}
+	return userId, nil
 }
 
 func (s *userService) CreateUser(user users.User) (*users.User, *errors.RestErrors) {
@@ -47,8 +56,8 @@ func (s *userService) GetUser(userId int64) (*users.User, *errors.RestErrors) {
 }
 
 func (s *userService) UpdateUser(user users.User) (*users.User, *errors.RestErrors) {
-	currentUser, err := GetUser(user.Id)
-	if err != nil {
+	currentUser := &users.User{Id: user.Id}
+	if err := currentUser.Get(); err != nil {
 		return nil, err
 	}
 
